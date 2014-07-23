@@ -366,6 +366,24 @@ bool aml_mode_to_resolution(const char *mode, RESOLUTION_INFO *res)
     res->fRefreshRate = 60;
     res->dwFlags = D3DPRESENTFLAG_PROGRESSIVE;
   }
+  else if (fromMode.Equals("480cvbs"))
+  {
+    res->iWidth = 720;
+    res->iHeight= 480;
+    res->iScreenWidth = 720;
+    res->iScreenHeight= 480;
+    res->fRefreshRate = 60;
+    res->dwFlags = D3DPRESENTFLAG_INTERLACED;
+  }
+  else if (fromMode.Equals("576cvbs"))
+  {
+    res->iWidth = 720;
+    res->iHeight= 576;
+    res->iScreenWidth = 720;
+    res->iScreenHeight= 576;
+    res->fRefreshRate = 50;
+    res->dwFlags = D3DPRESENTFLAG_INTERLACED;
+  }
   else if (fromMode.Equals("720p"))
   {
     res->iWidth = 1280;

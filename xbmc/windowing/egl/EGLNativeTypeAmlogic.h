@@ -53,5 +53,7 @@ protected:
   void DisableFreeScale();
 
 private:
+  bool IsHdmiConnected() const;
+
   std::string m_framebuffer_name;
 };
