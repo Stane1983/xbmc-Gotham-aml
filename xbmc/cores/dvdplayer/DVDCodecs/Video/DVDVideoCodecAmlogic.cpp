@@ -121,7 +121,13 @@ bool CDVDVideoCodecAmlogic::Open(CDVDStreamInfo &hints, CDVDCodecOptions &option
     case AV_CODEC_ID_MPEG4:
     case AV_CODEC_ID_MSMPEG4V2:
     case AV_CODEC_ID_MSMPEG4V3:
-      m_pFormatName = "am-mpeg4";
+      // Avoid h/w decoding mpeg4 low-res for SD.
+      if (m_hints.width <= 800) {
+          CLog::Log(LOGDEBUG, "%s: %d is being sent to software decoding.", __MODULE_NAME__, m_hints.codec);
+          return false;
+      } else {
+          m_pFormatName = "am-mpeg4";
+      }
       break;
     case AV_CODEC_ID_H263:
     case AV_CODEC_ID_H263P:
