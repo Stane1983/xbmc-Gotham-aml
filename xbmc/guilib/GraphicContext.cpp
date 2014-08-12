@@ -64,6 +64,13 @@ CGraphicContext::CGraphicContext(void) :
   , m_stereoMode(RENDER_STEREO_MODE_OFF)
   , m_nextStereoMode(RENDER_STEREO_MODE_OFF)
 {
+#ifdef TARGET_LINUX
+  // AMlogic resolution, x and y set and change check
+  amlWidth = 0;
+  amlHeight = 0;
+  amlX = 0;
+  amlY = 0;
+#endif
 }
 
 CGraphicContext::~CGraphicContext(void)

@@ -278,10 +278,10 @@ private:
 
 #ifdef TARGET_LINUX
   // AMlogic resolution, x and y set and change check
-  int amlWidth = 0;
-  int amlHeight = 0;
-  int amlX = 0;
-  int amlY = 0;
+  int amlWidth;
+  int amlHeight;
+  int amlX;
+  int amlY;
 #endif
 };
 
