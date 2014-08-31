@@ -35,6 +35,7 @@
 #include "utils/JobManager.h"
 #include "video/VideoReferenceClock.h"
 #include "cores/IPlayer.h"
+#include "utils/AMLUtils.h"
 
 using namespace std;
 
@@ -63,6 +64,13 @@ CGraphicContext::CGraphicContext(void) :
   , m_stereoMode(RENDER_STEREO_MODE_OFF)
   , m_nextStereoMode(RENDER_STEREO_MODE_OFF)
 {
+#ifdef TARGET_LINUX
+  // AMlogic resolution, x and y set and change check
+  amlWidth = 0;
+  amlHeight = 0;
+  amlX = 0;
+  amlY = 0;
+#endif
 }
 
 CGraphicContext::~CGraphicContext(void)
@@ -748,6 +756,26 @@ void CGraphicContext::GetGUIScaling(const RESOLUTION_INFO &res, float &scaleX, f
     float fToPosY     = (float)info.Overscan.top;
     float fToWidth    = (float)info.Overscan.right  - fToPosX;
     float fToHeight   = (float)info.Overscan.bottom - fToPosY;
+
+#ifdef TARGET_LINUX
+    if (aml_get_device_type() != AML_DEVICE_TYPE_UNKNOWN)
+    {
+      if ((amlWidth != info.Overscan.right  - fToPosX) || (amlHeight != info.Overscan.bottom - fToPosY)
+        || (amlX != info.Overscan.left) || (amlY != info.Overscan.top))
+      {
+        amlWidth = info.Overscan.right  - fToPosX;
+        amlHeight = info.Overscan.bottom - fToPosY;
+        amlX = info.Overscan.left;
+        amlY = info.Overscan.top;
+
+        system("mkdir -p /root/.xbmc/temp");
+        aml_set_sysfs_int("/root/.xbmc/temp/window_width", amlWidth);
+        aml_set_sysfs_int("/root/.xbmc/temp/window_height", amlHeight);
+        aml_set_sysfs_int("/root/.xbmc/temp/window_x", amlX);
+        aml_set_sysfs_int("/root/.xbmc/temp/window_y", amlY);
+      }
+    }
+#endif
 
     if(!g_guiSkinzoom) // lookup gui setting if we didn't have it already
       g_guiSkinzoom = (CSettingInt*)CSettings::Get().GetSetting("lookandfeel.skinzoom");
