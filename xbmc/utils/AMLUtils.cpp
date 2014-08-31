@@ -28,6 +28,11 @@
 #include "utils/CPUInfo.h"
 #include "utils/log.h"
 #include "utils/StringUtils.h"
+#include "utils/AMLUtils.h"
+
+#if defined(TARGET_ANDROID)
+#include <sys/system_properties.h>
+#endif
 
 int aml_set_sysfs_str(const char *path, const char *val)
 {
@@ -131,47 +136,66 @@ void aml_permissions()
 {
   if (!aml_present())
     return;
-  
-  // most all aml devices are already rooted.
-  int ret = system("ls /system/xbin/su");
-  if (ret != 0)
+
+#if defined(TARGET_ANDROID)
+  char value_no_need_su[93] = "";
+  __system_property_get("xbmc.no_need_su", value_no_need_su);
+
+  if (strncmp(value_no_need_su, "true", 4) != 0)
   {
-    CLog::Log(LOGWARNING, "aml_permissions: missing su, playback might fail");
+    // most all aml devices are already rooted.
+    int ret = system("ls /system/xbin/su");
+    if (ret != 0)
+    {
+      CLog::Log(LOGWARNING, "aml_permissions: missing su, playback might fail");
+    }
+    else
+    {
+      // certain aml devices have 664 permission, we need 666.
+      system("su -c chmod 666 /dev/amvideo");
+      system("su -c chmod 666 /dev/amstream*");
+      system("su -c chmod 666 /sys/class/video/axis");
+      system("su -c chmod 666 /sys/class/video/screen_mode");
+      system("su -c chmod 666 /sys/class/video/disable_video");
+      system("su -c chmod 666 /sys/class/tsync/pts_pcrscr");
+      system("su -c chmod 666 /sys/class/audiodsp/digital_raw");
+      system("su -c chmod 666 /sys/class/ppmgr/ppmgr_3d_mode");
+      
+      if (aml_get_device_type() == AML_DEVICE_TYPE_M6)
+      {
+        system("su -c chmod 666 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq");
+        system("su -c chmod 666 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq");
+        system("su -c chmod 666 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor");
+      }
+      CLog::Log(LOGINFO, "aml_permissions: permissions changed");
+    }
   }
-  else
-  {
-    // certain aml devices have 664 permission, we need 666.
-    system("su -c chmod 666 /sys/class/video/axis");
-    system("su -c chmod 666 /sys/class/video/screen_mode");
-    system("su -c chmod 666 /sys/class/video/disable_video");
-    system("su -c chmod 666 /sys/class/tsync/pts_pcrscr");
-    system("su -c chmod 666 /sys/class/audiodsp/digital_raw");
-    system("su -c chmod 666 /sys/class/ppmgr/ppmgr_3d_mode");
-    system("su -c chmod 666 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq");
-    system("su -c chmod 666 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq");
-    system("su -c chmod 666 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor");
-    CLog::Log(LOGINFO, "aml_permissions: permissions changed");
-  }
+#endif
 }
 
-int aml_get_cputype()
+enum AML_DEVICE_TYPE aml_get_device_type()
 {
-  static int aml_cputype = -1;
-  if (aml_cputype == -1)
+  static enum AML_DEVICE_TYPE aml_device_type = AML_DEVICE_TYPE_UNINIT;
+  if (aml_device_type == AML_DEVICE_TYPE_UNINIT)
   {
     std::string cpu_hardware = g_cpuInfo.getCPUHardware();
 
-    // default to AMLogic M1
-    aml_cputype = 1;
-    if (cpu_hardware.find("MESON-M3") != std::string::npos)
-      aml_cputype = 3;
-    else if (cpu_hardware.find("MESON3") != std::string::npos)
-      aml_cputype = 3;
+    if (cpu_hardware.find("MESON-M1") != std::string::npos)
+      aml_device_type = AML_DEVICE_TYPE_M1;
+    else if (cpu_hardware.find("MESON-M3") != std::string::npos
+          || cpu_hardware.find("MESON3")   != std::string::npos)
+      aml_device_type = AML_DEVICE_TYPE_M3;
     else if (cpu_hardware.find("Meson6") != std::string::npos)
-      aml_cputype = 6;
+      aml_device_type = AML_DEVICE_TYPE_M6;
+    else if ((cpu_hardware.find("Meson8") != std::string::npos) && (cpu_hardware.find("Meson8B") == std::string::npos))
+      aml_device_type = AML_DEVICE_TYPE_M8;
+    else if (cpu_hardware.find("Meson8B") != std::string::npos)
+      aml_device_type = AML_DEVICE_TYPE_M8B;
+    else
+      aml_device_type = AML_DEVICE_TYPE_UNKNOWN;
   }
 
-  return aml_cputype;
+  return aml_device_type;
 }
 
 void aml_cpufreq_min(bool limit)
@@ -179,7 +203,8 @@ void aml_cpufreq_min(bool limit)
 // do not touch scaling_min_freq on android
 #if !defined(TARGET_ANDROID)
   // only needed for m1/m3 SoCs
-  if (aml_get_cputype() <= 3)
+  if (  aml_get_device_type() != AML_DEVICE_TYPE_UNKNOWN
+    &&  aml_get_device_type() <= AML_DEVICE_TYPE_M3)
   {
     int cpufreq = 300000;
     if (limit)
@@ -192,7 +217,7 @@ void aml_cpufreq_min(bool limit)
 
 void aml_cpufreq_max(bool limit)
 {
-  if (!aml_wired_present() && aml_get_cputype() > 3)
+  if (!aml_wired_present() && aml_get_device_type() == AML_DEVICE_TYPE_M6)
   {
     // this is a MX Stick, they cannot substain 1GHz
     // operation without overheating so limit them to 800MHz.
@@ -207,17 +232,18 @@ void aml_cpufreq_max(bool limit)
 
 void aml_set_audio_passthrough(bool passthrough)
 {
-  if (aml_present())
+  if (  aml_present()
+    &&  aml_get_device_type() != AML_DEVICE_TYPE_UNKNOWN
+    &&  aml_get_device_type() <= AML_DEVICE_TYPE_M8B)
   {
     // m1 uses 1, m3 and above uses 2
-    int raw = aml_get_cputype() < 3 ? 1:2;
+    int raw = aml_get_device_type() == AML_DEVICE_TYPE_M1 ? 1:2;
     aml_set_sysfs_int("/sys/class/audiodsp/digital_raw", passthrough ? raw:0);
   }
 }
 
 void aml_probe_hdmi_audio()
 {
-  std::vector<CStdString> audio_formats;
   // Audio {format, channel, freq, cce}
   // {1, 7, 7f, 7}
   // {7, 5, 1e, 0}
@@ -235,42 +261,41 @@ void aml_probe_hdmi_audio()
     valstr[strlen(valstr)] = '\0';
     close(fd);
 
-    std::vector<CStdString> probe_str;
-    StringUtils::SplitString(valstr, "\n", probe_str);
+    std::vector<std::string> probe_str = StringUtils::Split(valstr, "\n");
 
-    for (size_t i = 0; i < probe_str.size(); i++)
+    for (std::vector<std::string>::const_iterator i = probe_str.begin(); i != probe_str.end(); ++i)
     {
-      if (probe_str[i].find("Audio") == std::string::npos)
+      if (i->find("Audio") == std::string::npos)
       {
-        for (size_t j = i+1; j < probe_str.size(); j++)
+        for (std::vector<std::string>::const_iterator j = i + 1; j != probe_str.end(); ++j)
         {
-          if      (probe_str[i].find("{1,")  != std::string::npos)
+          if      (j->find("{1,")  != std::string::npos)
             printf(" PCM found {1,\n");
-          else if (probe_str[i].find("{2,")  != std::string::npos)
+          else if (j->find("{2,")  != std::string::npos)
             printf(" AC3 found {2,\n");
-          else if (probe_str[i].find("{3,")  != std::string::npos)
+          else if (j->find("{3,")  != std::string::npos)
             printf(" MPEG1 found {3,\n");
-          else if (probe_str[i].find("{4,")  != std::string::npos)
+          else if (j->find("{4,")  != std::string::npos)
             printf(" MP3 found {4,\n");
-          else if (probe_str[i].find("{5,")  != std::string::npos)
+          else if (j->find("{5,")  != std::string::npos)
             printf(" MPEG2 found {5,\n");
-          else if (probe_str[i].find("{6,")  != std::string::npos)
+          else if (j->find("{6,")  != std::string::npos)
             printf(" AAC found {6,\n");
-          else if (probe_str[i].find("{7,")  != std::string::npos)
+          else if (j->find("{7,")  != std::string::npos)
             printf(" DTS found {7,\n");
-          else if (probe_str[i].find("{8,")  != std::string::npos)
+          else if (j->find("{8,")  != std::string::npos)
             printf(" ATRAC found {8,\n");
-          else if (probe_str[i].find("{9,")  != std::string::npos)
+          else if (j->find("{9,")  != std::string::npos)
             printf(" One_Bit_Audio found {9,\n");
-          else if (probe_str[i].find("{10,") != std::string::npos)
+          else if (j->find("{10,") != std::string::npos)
             printf(" Dolby found {10,\n");
-          else if (probe_str[i].find("{11,") != std::string::npos)
+          else if (j->find("{11,") != std::string::npos)
             printf(" DTS_HD found {11,\n");
-          else if (probe_str[i].find("{12,") != std::string::npos)
+          else if (j->find("{12,") != std::string::npos)
             printf(" MAT found {12,\n");
-          else if (probe_str[i].find("{13,") != std::string::npos)
+          else if (j->find("{13,") != std::string::npos)
             printf(" ATRAC found {13,\n");
-          else if (probe_str[i].find("{14,") != std::string::npos)
+          else if (j->find("{14,") != std::string::npos)
             printf(" WMA found {14,\n");
           else
             break;
