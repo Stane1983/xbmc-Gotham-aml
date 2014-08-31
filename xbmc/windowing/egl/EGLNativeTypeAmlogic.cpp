@@ -189,7 +189,7 @@ bool CEGLNativeTypeAmlogic::ProbeResolutions(std::vector<RESOLUTION_INFO> &resol
   RESOLUTION_INFO res;
   for (size_t i = 0; i < probe_str.size(); i++)
   {
-    if(aml_mode_to_resolution(i->c_str(), &res))
+    if(aml_mode_to_resolution(probe_str[i].c_str(), &res))
       resolutions.push_back(res);
   }
   return resolutions.size() > 0;
