@@ -24,6 +24,7 @@
 #include "DVDClock.h"
 #include "DVDStreamInfo.h"
 #include "AMLCodec.h"
+#include "utils/AMLUtils.h"
 #include "utils/BitstreamConverter.h"
 #include "utils/log.h"
 
@@ -69,7 +70,7 @@ bool CDVDVideoCodecAmlogic::Open(CDVDStreamInfo &hints, CDVDCodecOptions &option
     case AV_CODEC_ID_MPEG1VIDEO:
     case AV_CODEC_ID_MPEG2VIDEO:
     case AV_CODEC_ID_MPEG2VIDEO_XVMC:
-      if (m_hints.width <= 1280)
+      if (aml_get_device_type() >= AML_DEVICE_TYPE_M6 && m_hints.width <= 1280)
       {
         // amcodec struggles with VOB playback
         // which can be handled via software
