@@ -100,7 +100,7 @@ AEDeviceType CActiveAESink::GetDeviceType(const std::string &device)
 bool CActiveAESink::HasPassthroughDevice()
 {
 #if defined(HAS_LIBAMCODEC)
-  if (aml_get_device_type() != AML_CPU_TYPE_UNKNOWN
+  if (aml_get_device_type() != AML_DEVICE_TYPE_UNKNOWN
     && aml_get_device_type() >= AML_DEVICE_TYPE_M1)
     return true;
 #endif
@@ -119,7 +119,7 @@ bool CActiveAESink::HasPassthroughDevice()
 bool CActiveAESink::SupportsFormat(const std::string &device, AEDataFormat format, int samplerate)
 {
 #if defined(HAS_LIBAMCODEC)
-  if (aml_get_device_type() != AML_CPU_TYPE_UNKNOWN
+  if (aml_get_device_type() != AML_DEVICE_TYPE_UNKNOWN
     && aml_get_device_type() >= AML_DEVICE_TYPE_M1)
     return true;
 #endif
