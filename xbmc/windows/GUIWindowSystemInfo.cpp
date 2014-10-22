@@ -30,6 +30,7 @@
 #endif
 #include "utils/StringUtils.h"
 #include "storage/MediaManager.h"
+#include "settings/AdvancedSettings.h"
 
 #define CONTROL_BT_STORAGE  94
 #define CONTROL_BT_DEFAULT  95
@@ -100,8 +101,14 @@ void CGUIWindowSystemInfo::FrameMove()
     SetControlLabel(i++, "%s %s", 13283, SYSTEM_KERNEL_VERSION);
 #endif
     SetControlLabel(i++, "%s: %s", 12390, SYSTEM_UPTIME);
+    if (!g_advancedSettings.m_hideTotaluptime)
+    {
     SetControlLabel(i++, "%s: %s", 12394, SYSTEM_TOTALUPTIME);
-    SetControlLabel(i++, "%s: %s", 12395, SYSTEM_BATTERY_LEVEL);
+    }
+    if (!g_advancedSettings.m_hideBattery)
+    {
+      SetControlLabel(i++, "%s: %s", 12395, SYSTEM_BATTERY_LEVEL);
+    }
   }
   else if (m_section == CONTROL_BT_STORAGE)
   {
@@ -154,10 +161,19 @@ void CGUIWindowSystemInfo::FrameMove()
 #if defined(__arm__) && defined(TARGET_LINUX)
     SET_CONTROL_LABEL(i++, g_sysinfo.GetCPUBogoMips());
     SET_CONTROL_LABEL(i++, g_sysinfo.GetCPUHardware());
-    SET_CONTROL_LABEL(i++, g_sysinfo.GetCPURevision());
-    SET_CONTROL_LABEL(i++, g_sysinfo.GetCPUSerial());
+    if (!g_advancedSettings.m_hideCPUrev)
+    {
+      SET_CONTROL_LABEL(i++, g_sysinfo.GetCPURevision());
+    }
+    if (!g_advancedSettings.m_hideCPUserial)
+    {
+      SET_CONTROL_LABEL(i++, g_sysinfo.GetCPUSerial());
+    }
 #endif
-    SetControlLabel(i++, "%s %s", 22011, SYSTEM_CPU_TEMPERATURE);
+    if (!g_advancedSettings.m_hideCPUtemp)
+    {
+      SetControlLabel(i++, "%s %s", 22011, SYSTEM_CPU_TEMPERATURE);
+    }
 #if !defined(__arm__) || defined(TARGET_RASPBERRY_PI)
     SetControlLabel(i++, "%s %s", 13284, SYSTEM_CPUFREQUENCY);
 #endif
