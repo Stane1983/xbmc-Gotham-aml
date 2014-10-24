@@ -137,11 +137,13 @@ bool CEGLNativeTypeAmlogic::GetNativeResolution(RESOLUTION_INFO *res) const
 
 bool CEGLNativeTypeAmlogic::SetNativeResolution(const RESOLUTION_INFO &res)
 {
+#if defined(_FBDEV_WINDOW_H_)
   if (m_nativeWindow)
   {
     ((fbdev_window *)m_nativeWindow)->width = res.iScreenWidth;
     ((fbdev_window *)m_nativeWindow)->height = res.iScreenHeight;
   }
+#endif
 
   switch((int)(0.5 + res.fRefreshRate))
   {
