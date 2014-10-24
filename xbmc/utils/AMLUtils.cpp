@@ -404,8 +404,18 @@ bool aml_mode_to_resolution(const char *mode, RESOLUTION_INFO *res)
   }
   else if (fromMode.Equals("1080p"))
   {
+#if defined(TARGET_ANDROID)
+    if (aml_get_device_type() == AML_DEVICE_TYPE_M6) {
+      res->iWidth = 1280;
+      res->iHeight= 720;
+    } else {
+      res->iWidth = 1920;
+      res->iHeight= 1080;
+    }
+#else
     res->iWidth = 1920;
     res->iHeight= 1080;
+#endif
     res->iScreenWidth = 1920;
     res->iScreenHeight= 1080;
     res->fRefreshRate = 60;
@@ -413,8 +423,18 @@ bool aml_mode_to_resolution(const char *mode, RESOLUTION_INFO *res)
   }
   else if (fromMode.Equals("1080p24hz"))
   {
+#if defined(TARGET_ANDROID)
+    if (aml_get_device_type() == AML_DEVICE_TYPE_M6) {
+      res->iWidth = 1280;
+      res->iHeight= 720;
+    } else {
+      res->iWidth = 1920;
+      res->iHeight= 1080;
+    }
+#else
     res->iWidth = 1920;
     res->iHeight= 1080;
+#endif
     res->iScreenWidth = 1920;
     res->iScreenHeight= 1080;
     res->fRefreshRate = 24;
@@ -422,8 +442,18 @@ bool aml_mode_to_resolution(const char *mode, RESOLUTION_INFO *res)
   }
   else if (fromMode.Equals("1080p30hz"))
   {
+#if defined(TARGET_ANDROID)
+    if (aml_get_device_type() == AML_DEVICE_TYPE_M6) {
+      res->iWidth = 1280;
+      res->iHeight= 720;
+    } else {
+      res->iWidth = 1920;
+      res->iHeight= 1080;
+    }
+#else
     res->iWidth = 1920;
     res->iHeight= 1080;
+#endif
     res->iScreenWidth = 1920;
     res->iScreenHeight= 1080;
     res->fRefreshRate = 30;
@@ -431,8 +461,18 @@ bool aml_mode_to_resolution(const char *mode, RESOLUTION_INFO *res)
   }
   else if (fromMode.Equals("1080p50hz"))
   {
+#if defined(TARGET_ANDROID)
+    if (aml_get_device_type() == AML_DEVICE_TYPE_M6) {
+      res->iWidth = 1280;
+      res->iHeight= 720;
+    } else {
+      res->iWidth = 1920;
+      res->iHeight= 1080;
+    }
+#else
     res->iWidth = 1920;
     res->iHeight= 1080;
+#endif
     res->iScreenWidth = 1920;
     res->iScreenHeight= 1080;
     res->fRefreshRate = 50;
@@ -440,8 +480,18 @@ bool aml_mode_to_resolution(const char *mode, RESOLUTION_INFO *res)
   }
   else if (fromMode.Equals("1080i"))
   {
+#if defined(TARGET_ANDROID)
+    if (aml_get_device_type() == AML_DEVICE_TYPE_M6) {
+      res->iWidth = 1280;
+      res->iHeight= 720;
+    } else {
+      res->iWidth = 1920;
+      res->iHeight= 1080;
+    }
+#else
     res->iWidth = 1920;
     res->iHeight= 1080;
+#endif
     res->iScreenWidth = 1920;
     res->iScreenHeight= 1080;
     res->fRefreshRate = 60;
@@ -449,8 +499,18 @@ bool aml_mode_to_resolution(const char *mode, RESOLUTION_INFO *res)
   }
   else if (fromMode.Equals("1080i50hz"))
   {
+#if defined(TARGET_ANDROID)
+    if (aml_get_device_type() == AML_DEVICE_TYPE_M6) {
+      res->iWidth = 1280;
+      res->iHeight= 720;
+    } else {
+      res->iWidth = 1920;
+      res->iHeight= 1080;
+    }
+#else
     res->iWidth = 1920;
     res->iHeight= 1080;
+#endif
     res->iScreenWidth = 1920;
     res->iScreenHeight= 1080;
     res->fRefreshRate = 50;
