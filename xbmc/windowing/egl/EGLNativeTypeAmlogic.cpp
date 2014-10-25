@@ -285,7 +285,9 @@ void CEGLNativeTypeAmlogic::SetFramebufferResolution(int width, int height) cons
       vinfo.xres_virtual = 1920;
       vinfo.yres_virtual = 2160;
       vinfo.bits_per_pixel = 32;
-      vinfo.activate = FB_ACTIVATE_ALL;
+      if (aml_get_device_type() == AML_DEVICE_TYPE_M6) {
+        vinfo.activate = FB_ACTIVATE_ALL;
+      }
       ioctl(fd0, FBIOPUT_VSCREENINFO, &vinfo);
     }
     close(fd0);
