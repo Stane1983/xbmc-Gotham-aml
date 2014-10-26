@@ -365,21 +365,16 @@ bool CSettings::Save()
 
 bool CSettings::Save(const std::string &file)
 {
-  if (m_settingsManager->IsModified() || !CFile::Exists(file))
-  {
-    CXBMCTinyXML xmlDoc;
-    TiXmlElement rootElement(SETTINGS_XML_ROOT);
-    TiXmlNode *root = xmlDoc.InsertEndChild(rootElement);
-    if (root == NULL)
-      return false;
+  CXBMCTinyXML xmlDoc;
+  TiXmlElement rootElement(SETTINGS_XML_ROOT);
+  TiXmlNode *root = xmlDoc.InsertEndChild(rootElement);
+  if (root == NULL)
+    return false;
 
-    if (!m_settingsManager->Save(root))
-      return false;
+  if (!m_settingsManager->Save(root))
+    return false;
 
-    return xmlDoc.SaveFile(file);
-  }
-
-  return true;
+  return xmlDoc.SaveFile(file);
 }
 
 void CSettings::Unload()

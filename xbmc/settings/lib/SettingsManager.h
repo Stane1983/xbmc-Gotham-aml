@@ -88,7 +88,7 @@ public:
    \param root XML node
    \return True if the setting values were successfully saved, false otherwise
    */
-  virtual bool Save(TiXmlNode *root);
+  virtual bool Save(TiXmlNode *root) const;
   /*!
    \brief Unloads the previously loaded setting values.
 
@@ -382,13 +382,6 @@ public:
    */
   void AddCondition(const std::string &identifier, SettingConditionCheck condition);
 
-  /*!
-   \brief Gets the value that indicates whether the settings were modified after last saving.
-
-   \return True if some of the settings was modified after last saving, false otherwise
-   */
-  bool IsModified() const { return m_modified; }
-
 private:
   // implementation of ISettingCallback
   virtual bool OnSettingChanging(const CSetting *setting);
@@ -433,7 +426,6 @@ private:
 
   bool m_initialized;
   bool m_loaded;
-  bool m_modified;
 
   typedef std::map<std::string, Setting> SettingMap;
   SettingMap m_settings;

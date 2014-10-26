@@ -28,7 +28,7 @@
 
 
 CSettingsManager::CSettingsManager()
-  : m_initialized(false), m_loaded(false), m_modified(false)
+  : m_initialized(false), m_loaded(false)
 { }
 
 CSettingsManager::~CSettingsManager()
@@ -170,7 +170,6 @@ bool CSettingsManager::Load(const TiXmlElement *root, bool &updated, bool trigge
     ret = Load(root);
 
   updated = UpdateSettings(root);
-  m_modified = updated;
 
   if (triggerEvents)
     OnSettingsLoaded();
@@ -178,7 +177,7 @@ bool CSettingsManager::Load(const TiXmlElement *root, bool &updated, bool trigge
   return ret;
 }
 
-bool CSettingsManager::Save(TiXmlNode *root)
+bool CSettingsManager::Save(TiXmlNode *root) const
 {
   CSharedLock lock(m_critical);
   CSharedLock settingsLock(m_settingsCritical);
@@ -201,7 +200,6 @@ bool CSettingsManager::Save(TiXmlNode *root)
       return false;
   }
 
-  m_modified = false;
   OnSettingsSaved();
 
   return true;
@@ -748,8 +746,6 @@ void CSettingsManager::OnSettingChanged(const CSetting *setting)
     for (SettingDependencies::const_iterator depIt = depsIt->second.begin(); depIt != depsIt->second.end(); ++depIt)
       UpdateSettingByDependency(depsIt->first, *depIt);
   }
-
-  m_modified = true;
 }
 
 void CSettingsManager::OnSettingAction(const CSetting *setting)
