@@ -49,6 +49,7 @@ public:
 
 protected:
   bool SetDisplayResolution(const char *resolution);
+  void EnableFreeScale();
   void DisableFreeScale();
 
 private:
