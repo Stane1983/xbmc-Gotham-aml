@@ -327,6 +327,7 @@ void CEGLNativeTypeAmlogic::EnableFreeScale()
   aml_set_sysfs_int("/sys/class/video/disable_video", 1);
   aml_set_sysfs_str("/sys/class/ppmgr/ppscaler_rect", pprect_str);
   aml_set_sysfs_str("/sys/class/graphics/fb0/free_scale_axis", fsaxis_str);
+  aml_set_sysfs_str("/sys/class/video/axis", waxis_str);
   aml_set_sysfs_str("/sys/class/graphics/fb0/window_axis", waxis_str);
   aml_set_sysfs_str("/sys/class/display/axis", axis_str);
   aml_set_sysfs_int("/sys/class/graphics/fb0/free_scale", 0x10001);
@@ -335,30 +336,8 @@ void CEGLNativeTypeAmlogic::EnableFreeScale()
 
 void CEGLNativeTypeAmlogic::DisableFreeScale()
 {
-  aml_set_sysfs_int("/sys/class/video/disable_video", 1);
-  aml_set_sysfs_int("/sys/class/graphics/fb0/scale_width", 0);
-  aml_set_sysfs_int("/sys/class/graphics/fb0/scale_height", 0);
-  aml_set_sysfs_int("/sys/class/ppmgr/ppscaler", 0);
-  aml_set_sysfs_str("/sys/class/ppmgr/disp", "0 0");
-  aml_set_sysfs_str("/sys/class/ppmgr/ppscaler_rect", "0 0 0 0 0");
-  aml_set_sysfs_str("/sys/class/graphics/fb0/free_scale_axis", "0 0 0 0");
-  aml_set_sysfs_str("/sys/class/graphics/fb0/window_axis", "0 0 0 0");
-
-  int fd0;
-  std::string framebuffer = "/dev/" + m_framebuffer_name;
-  if ((fd0 = open(framebuffer.c_str(), O_RDWR)) >= 0)
-  {
-    struct fb_var_screeninfo vinfo;
-    if (ioctl(fd0, FBIOGET_VSCREENINFO, &vinfo) == 0)
-    {
-      char axis_str[255] = {0};
-      sprintf(axis_str, "0 0 %d %d 0 0 0 0", vinfo.xres-1, vinfo.yres-1);
-      aml_set_sysfs_str("/sys/class/display/axis", axis_str);
-    }
-    close(fd0);
-  }
-
   aml_set_sysfs_int("/sys/class/graphics/fb0/free_scale", 0);
+  aml_set_sysfs_int("/sys/class/graphics/fb1/free_scale", 0);
   aml_set_sysfs_int("/sys/class/video/disable_video", 0);
 }
 
