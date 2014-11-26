@@ -361,7 +361,6 @@ void CEGLNativeTypeAmlogic::DisableFreeScale()
   aml_set_sysfs_int("/sys/class/graphics/fb0/free_scale", 0);
   aml_set_sysfs_int("/sys/class/video/disable_video", 0);
 }
-}
 
 void CEGLNativeTypeAmlogic::SetFramebufferResolution(const RESOLUTION_INFO &res) const
 {
