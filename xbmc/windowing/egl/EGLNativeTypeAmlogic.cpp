@@ -320,12 +320,12 @@ void CEGLNativeTypeAmlogic::EnableFreeScale()
   sprintf(axis_str, "0 0 %d %d 0 0 0 0", res.iWidth-1, res.iHeight-1);
 
   aml_set_sysfs_int("/sys/class/video/disable_video", 1);
-  aml_set_sysfs_int("/sys/class/graphics/fb0/scale_width", swidth_int);
-  aml_set_sysfs_int("/sys/class/graphics/fb0/scale_height", sheight_int);
-  aml_set_sysfs_int("/sys/class/ppmgr/ppscaler", 1);
-  aml_set_sysfs_str("/sys/class/ppmgr/disp", disp_str);
+  //aml_set_sysfs_int("/sys/class/graphics/fb0/scale_width", swidth_int);
+  //aml_set_sysfs_int("/sys/class/graphics/fb0/scale_height", sheight_int);
+  //aml_set_sysfs_int("/sys/class/ppmgr/ppscaler", 1);
+  //aml_set_sysfs_str("/sys/class/ppmgr/disp", disp_str);
   aml_set_sysfs_int("/sys/class/video/disable_video", 1);
-  aml_set_sysfs_str("/sys/class/ppmgr/ppscaler_rect", pprect_str);
+  //aml_set_sysfs_str("/sys/class/ppmgr/ppscaler_rect", pprect_str);
   aml_set_sysfs_str("/sys/class/graphics/fb0/free_scale_axis", fsaxis_str);
   aml_set_sysfs_str("/sys/class/video/axis", waxis_str);
   aml_set_sysfs_str("/sys/class/graphics/fb0/window_axis", waxis_str);
